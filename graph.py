@@ -18,6 +18,7 @@ class Graph:
 
     def add_edge(self, u, v, weight):
         self.add_vertex(u)
+        self.add_vertex(v)
         self.graph[u].append(v)
         self.edges[u].append(weight)
         self.vertex_count += 1
@@ -34,12 +35,13 @@ class Graph:
         return res[v].distance
 
     # Prints all paths from 's' to 'd'
-    def print_all_paths(self, s, d, max_steps):
+    def find_all_paths(self, s, d, max_steps):
         '''A recursive function to print all paths from 'u' to 'd'.
             visited[] keeps track of vertices in current path.
             path[] stores actual vertices and path_index is current
             index in path[]'''
-        def print_all_paths_util(u, d, visited, path, max_steps, step=0):
+        print(self.graph)
+        def find_all_paths_util(u, d, visited, path, max_steps, step=0):
 
             # Mark the current node as visited and store in path
             visited[u] = True
@@ -56,7 +58,7 @@ class Graph:
                 # Recur for all the vertices adjacent to this vertex
                 for i in self.graph[u]:
                     if visited[i] == False:
-                        print_all_paths_util(
+                        find_all_paths_util(
                             i, d, visited, path, max_steps, step)
 
             # Remove current vertex from path[] and mark it as unvisited
@@ -74,11 +76,11 @@ class Graph:
         paths = []
 
         # Call the recursive helper function to print all paths
-        return print_all_paths_util(s, d, visited, path, max_steps)
+        return find_all_paths_util(s, d, visited, path, max_steps)
 
 
 class DijkstraVertex():
-    
+
     def __init__(self, vertex):
         self.vertex = vertex
         self.distance = 1e17

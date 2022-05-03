@@ -1,33 +1,20 @@
+import graphlib
 from typing import List, Optional
-from fastapi import FastAPI, Response
+from fastapi import Body, FastAPI, Response
 from pydantic import BaseModel
+from database import get_database
 from graph import Graph, dijkstra
 
 
 my_app = FastAPI()
+db = get_database()
+id = 0
 
-
-g = Graph()
-g.add_edge("A","B",6)
-g.add_edge("A","E",4)
-g.add_edge("B","A",6)
-g.add_edge("B","C",2)
-g.add_edge("B","D",4)
-g.add_edge("C","B",3)
-g.add_edge("C","D",1)
-g.add_edge("C","E",7)
-g.add_edge("D","B",8)
-g.add_edge("E","B",5)
-g.add_edge("E","D",7)
-
-
-# s = "A"
-# d = "C"
-# print("Following are all different paths from %s to %s :" % (s, d))
-# print(g.print_all_paths(s, d, 3))
-# print(dijkstra(g, s)[d].build_path())
-# print(g.min_distance_between(s, d))
-
+def create_graph(data):
+    g = Graph()
+    for item in data.data:
+        g.add_edge(item.source,item.target,item.distance)
+    return g
 
 class GraphNode(BaseModel):
     source: str
@@ -36,13 +23,17 @@ class GraphNode(BaseModel):
 
 
 class Data(BaseModel):
+    id: Optional[int]
     data: List[GraphNode]
-    id: Optional(int)
 
 
 @my_app.post("/graph", status_code=201)
 def put_data(response: Response, data: Data):
-    data.id = 1
+    global id
+    graphs = db["graphs"]
+    id = id + 1
+    data.id = id
+    graphs.insert_one(data.dict())
     return data
 
 
@@ -51,13 +42,19 @@ def get_data(response: Response, graph_id: int):
     if graph_id < 0:
         response.status_code = 404
         return
-    data = Data(data=[], id=graph_id)
+    graphs = db["graphs"]
+    data = graphs.find_one({"id" : graph_id})
+    del data["_id"]
     return data
 
 
 @my_app.post("/routes/{graph_id}/from/{town1}/to/{town2}", status_code=200)
 def distance_town(response: Response, graph_id: int, town1: str, town2: str, max_stops: int):
-    res = g.print_all_paths(town1, town2, max_stops)
+    graphs = db["graphs"]
+    data = graphs.find_one({"id" : graph_id})
+    del data["_id"]
+    graph = create_graph(Data.parse_obj(data))
+    res = graph.find_all_paths(town1, town2, max_stops)
     return {
         "routes": [
             {
@@ -71,7 +68,13 @@ def distance_town(response: Response, graph_id: int, town1: str, town2: str, max
 
 @my_app.post("/distance/{graph_id}/from/{town1}/to/{town2}", status_code=200)
 def stop_distance(response: Response, graph_id: int, town1: str, town2: str):
-    res = dijkstra(g, town1)
+    graphs = db["graphs"]
+    data = graphs.find_one({"id" : graph_id})
+    del data["_id"]
+    graph = create_graph(Data.parse_obj(data))
+    res = dijkstra(graph, town1)
+    print(graph.graph)
+    print(graph.edges)
     return {
         "distance": res[town2].distance,
         "path": res[town2].build_path(),
