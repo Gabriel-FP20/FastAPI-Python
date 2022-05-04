@@ -17,4 +17,3 @@ Codes in Python
 	pip install uvicorn[stardard]
 3. Install the Mongodb
 	https://www.mongodb.com/languages/python
-
