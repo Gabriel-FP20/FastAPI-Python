@@ -9,29 +9,31 @@ my_app = FastAPI()
 db = get_database()
 id = 0
 
+
 def create_graph(data):
-''' This fuction take the list request and add each element from the list as edge on Graph'''
+    ''' This fuction take the list request and add each 
+element from the list as edge on Graph'''
     g = Graph()
     for item in data.data:
         g.add_edge(item.source,item.target,item.distance)
     return g
 
 class GraphNode(BaseModel):
-''' Class with elements of data'''
+    ''' Class with elements of data'''
     source: str
     target: str
     distance: int
 
 
 class Data(BaseModel):
-''' Class with elements of List of datas'''
+    ''' Class with elements of List of datas'''
     id: Optional[int]
     data: List[GraphNode]
 
 
 @my_app.post("/graph", status_code=201)
 def put_data(response: Response, data: Data):
-''' This method use the global variable to identify the graph from List of datas.
+    ''' This method use the global variable to identify the graph from List of datas.
 Put the data on base'''
     global id
     graphs = db["graphs"]
@@ -43,7 +45,7 @@ Put the data on base'''
 
 @my_app.get("/graph/{graph_id}", status_code=200)
 def get_data(response: Response, graph_id: int):
-''' This method use the Id to acess the graph from List of datas.
+    ''' This method use the Id to acess the graph from List of datas.
 Get the data from base'''
     if graph_id < 0:
         response.status_code = 404
@@ -56,7 +58,7 @@ Get the data from base'''
 
 @my_app.post("/routes/{graph_id}/from/{town1}/to/{town2}", status_code=200)
 def distance_town(response: Response, graph_id: int, town1: str, town2: str, max_stops: int):
-''' This method use the Id to acess the graph from List of datas.
+    ''' This method use the Id to acess the graph from List of datas.
 Return all the paths between two cities with a max number of stops in the path'''
     graphs = db["graphs"]
     data = graphs.find_one({"id" : graph_id})
@@ -73,10 +75,9 @@ Return all the paths between two cities with a max number of stops in the path''
         ],
     }
 
-
 @my_app.post("/distance/{graph_id}/from/{town1}/to/{town2}", status_code=200)
 def stop_distance(response: Response, graph_id: int, town1: str, town2: str):
-''' This method use the Id to acess the graph from List of datas.
+    ''' This method use the Id to acess the graph from List of datas.
 Return all the distance between two cities and show the shorter path '''
     graphs = db["graphs"]
     data = graphs.find_one({"id" : graph_id})

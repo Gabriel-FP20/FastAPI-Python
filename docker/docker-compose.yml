@@ -1,0 +1,13 @@
+version: '3.4'
+
+services:
+  fastapi:
+    image: fastapi
+    build:
+      context: .
+      command: uvicorn app.main:app --host 0.0.0.0
+      volumes:
+        - .:/app
+      dockerfile: ./Dockerfile
+    ports:
+      - 8000:8000
