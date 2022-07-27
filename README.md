@@ -1,11 +1,6 @@
 # FastAPI
 Codes in Python
 
-Desde já agradeço a oportunidade de participar desse processo, foi um dos mais desafiadores que participei na vida
-até o momento! Consegui realizar todas as funcionalidades porém alguns entregáveis não foram alcançados. Dei o 
-meu melhor e sou grato a vocês por isso; nesses poucos dias aprendi muita coisa apenas com o teste e me pego 
-imaginando no que ainda posso aprender. Qualquer dúvida estou a disposição, mais uma vez agradeço!
-
 ********* Getting Started *********************
 
 1.Install dependencies:
